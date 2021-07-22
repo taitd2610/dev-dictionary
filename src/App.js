@@ -1,7 +1,10 @@
 import "./App.css";
 import { Button, Container, Form, Header } from "semantic-ui-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+
+const URL =
+  "https://sheet.best/api/sheets/e34ee050-727f-4e23-ae2f-61febdcfff69";
 
 function App() {
   const [vocabulary, setVocabulary] = useState({
@@ -9,8 +12,18 @@ function App() {
     vi: "",
   });
 
-  const URL =
-    "https://sheet.best/api/sheets/e34ee050-727f-4e23-ae2f-61febdcfff69";
+  const [vocabularyList, setVocabularyList] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Fetch data from API
+  const fetchData = async () => {
+    const response = await axios.get(URL);
+
+    setVocabularyList(response.data);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,6 +46,33 @@ function App() {
   return (
     <Container fluid className="container">
       <Header as="h2">Từ điển Tiếng Anh chuyên ngành</Header>
+
+      <div class="ui search">
+        <div class="ui icon input">
+          <input
+            class="prompt"
+            type="text"
+            placeholder="Nhập từ cần search..."
+          ></input>
+          <i class="search icon"></i>
+        </div>
+        <div class="results"></div>
+      </div>
+
+      {/* Display data from API */}
+      <div className="books">
+        {vocabularyList &&
+          vocabularyList.map((vocabulary, index) => {
+            return (
+              <div className="vocabulary" key={index}>
+                <h3>
+                  {index + 1}: {vocabulary.eng} : {vocabulary.vi}
+                </h3>
+              </div>
+            );
+          })}
+      </div>
+
       <Form className="form" onSubmit={handleSubmit}>
         <Form.Field>
           <label>Tiếng Anh</label>
