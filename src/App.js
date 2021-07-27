@@ -1,6 +1,14 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { Container } from "react-bootstrap";
+import {
+  Button,
+  Modal,
+  Form,
+  Col,
+  Container,
+  Row,
+  Alert,
+} from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -15,12 +23,14 @@ const URL =
   "https://sheet.best/api/sheets/e34ee050-727f-4e23-ae2f-61febdcfff69";
 
 function App() {
-  // const [vocabulary, setVocabulary] = useState({
-  //   eng: "",
-  //   vi: "",
-  // });
+  const [vocabulary, setVocabulary] = useState({
+    eng: "",
+    vi: "",
+  });
 
   const [vocabularyList, setVocabularyList] = useState([]);
+  const [show, setShow] = useState(false);
+  const [addSuccess, setAddSuccess] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -35,23 +45,28 @@ function App() {
   // Sort data
   vocabularyList.sort((v1, v2) => v1.eng.localeCompare(v2.eng));
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
+  // Show modal add vocabulary
+  const handleShowModal = () => setShow(true);
 
-  //   if (vocabulary.eng === "" || vocabulary.vi === "") {
-  //     alert("Vui lòng nhập từ Tiếng Anh và nghĩa tiếng Việt!");
-  //   } else {
-  //     console.log(vocabulary.eng);
-  //     console.log(vocabulary.vi);
+  // Hide modal add vocabulary
+  const handleCloseModal = () => setShow(false);
 
-  //     axios.post(URL, vocabulary).then((res) => {
-  //       console.log(res);
-  //     });
-  //     alert("Đã đăng ký thành công!");
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  //     setVocabulary({ eng: "", vi: "" });
-  //   }
-  // };
+    if (vocabulary.eng === "" || vocabulary.vi === "") {
+      return <Alert></Alert>;
+    } else {
+      console.log(vocabulary.eng);
+      console.log(vocabulary.vi);
+
+      axios.post(URL, vocabulary).then((res) => {
+        console.log(res);
+      });
+
+      setVocabulary({ eng: "", vi: "" });
+    }
+  };
 
   const columns = [
     {
@@ -70,7 +85,64 @@ function App() {
 
   return (
     <Container>
-      <h1>Dev Dictionary</h1>
+      <Row className="mb-3">
+        <Col>
+          <h1>Dev Dictionary</h1>
+        </Col>
+        <Col>
+          <Button variant="primary" onClick={handleShowModal}>
+            Thêm từ mới
+          </Button>
+        </Col>
+      </Row>
+
+      <Modal show={show} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Thêm từ mới</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Nhập từ tiếng Anh</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Example..."
+                value={vocabulary.eng}
+                onChange={(e) => {
+                  setVocabulary((prevState) => {
+                    return { ...prevState, eng: e.target.value };
+                  });
+                }}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Nhập nghĩa tiếng Việt</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Ví dụ..."
+                value={vocabulary.vi}
+                onChange={(e) => {
+                  setVocabulary((prevState) => {
+                    return { ...prevState, vi: e.target.value };
+                  });
+                }}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <BootstrapTable
         keyField="id"
         data={vocabularyList}
@@ -79,40 +151,6 @@ function App() {
         pagination={paginationFactory()}
       />
     </Container>
-
-    // {/* <Form className="form" onSubmit={handleSubmit}>
-    //   <Form.Field>
-    //     <label>Tiếng Anh</label>
-    //     <input
-    //       placeholder="Nhập từ tiếng Anh"
-    //       type="text"
-    //       name="name"
-    //       value={vocabulary.eng}
-    //       onChange={(e) => {
-    //         setVocabulary((prevState) => {
-    //           return { ...prevState, eng: e.target.value };
-    //         });
-    //       }}
-    //     />
-    //   </Form.Field>
-    //   <Form.Field>
-    //     <label>Tiếng Việt</label>
-    //     <input
-    //       placeholder="Nhập nghĩa tiếng Việt"
-    //       type="text"
-    //       value={vocabulary.vi}
-    //       onChange={(e) => {
-    //         setVocabulary((prevState) => {
-    //           return { ...prevState, vi: e.target.value };
-    //         });
-    //       }}
-    //     />
-    //   </Form.Field>
-
-    //   <Button color="blue" type="submit">
-    //     Đăng ký
-    //   </Button>
-    // </Form> */}
   );
 }
 
