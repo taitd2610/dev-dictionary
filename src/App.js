@@ -30,7 +30,6 @@ function App() {
 
   const [vocabularyList, setVocabularyList] = useState([]);
   const [show, setShow] = useState(false);
-  const [addSuccess, setAddSuccess] = useState(false);
 
   useEffect(() => {
     fetchData();
